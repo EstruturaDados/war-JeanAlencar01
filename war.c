@@ -42,12 +42,31 @@ void cadastrarTerritorios(Territorio *territorios);
 void exibirTerritorios(const Territorio *territorios);
 void simularBatalha(Territorio *territorios, int atacante, int defensor);
 void realizarAtaque(Territorio *territorios);
+int verificarMissao(const Territorio *territorios);
 
 // Declarações antecipadas de todas as funções que serão usadas no programa, organizadas por categoria.
 // Funções de setup e gerenciamento de memória:
 // Funções de interface com o usuário:
 // Funções de lógica principal do jogo:
 // Função utilitária:
+
+
+int verificarMissao(const Territorio *territorios) {
+    int territoriosConquistados = 0;
+    int exercitoVerdeDestruido = 1;
+    for (int i = 0; i < MAX_TERRITORIOS; i++) {
+        if (strcmp(territorios[i].corExercito, "Verde") == 0 && territorios[i].numeroTropas > 0) {
+            exercitoVerdeDestruido = 0;
+        }
+        if (territorios[i].numeroTropas > 5) {
+            territoriosConquistados++;
+        }
+    }
+    if (exercitoVerdeDestruido && territoriosConquistados >= 3) {
+        return 1;
+    }
+    return 0;
+}
 
 // --- Função Principal (main) ---
 // Função principal que orquestra o fluxo do jogo, chamando as outras funções em ordem.
@@ -62,6 +81,7 @@ int main() {
         printf("Menu:\n");
         printf("1. Exibir territórios\n");
         printf("2. Realizar ataque\n");
+        printf("3. Verificar missão\n");
         printf("0. Sair\n");
         printf("Escolha uma opção: ");
         scanf("%d", &opcao);
@@ -74,6 +94,18 @@ int main() {
             case 2:
                 realizarAtaque(territorios);
                 exibirTerritorios(territorios);
+                if (verificarMissao(territorios)) {
+                    printf("Missão cumprida! Você venceu!\n");
+                    opcao = 0;
+                }
+                break;
+            case 3:
+                if (verificarMissao(territorios)) {
+                    printf("Missão cumprida! Você venceu!\n");
+                    opcao = 0;
+                } else {
+                    printf("Missão ainda não cumprida.\n");
+                }
                 break;
             case 0:
                 printf("Saindo...\n");
