@@ -40,6 +40,8 @@ typedef struct {
 // --- Protótipos das Funções ---
 void cadastrarTerritorios(Territorio *territorios);
 void exibirTerritorios(const Territorio *territorios);
+void simularBatalha(Territorio *territorios, int atacante, int defensor);
+void realizarAtaque(Territorio *territorios);
 
 // Declarações antecipadas de todas as funções que serão usadas no programa, organizadas por categoria.
 // Funções de setup e gerenciamento de memória:
@@ -50,13 +52,37 @@ void exibirTerritorios(const Territorio *territorios);
 // --- Função Principal (main) ---
 // Função principal que orquestra o fluxo do jogo, chamando as outras funções em ordem.
 int main() {
-    
     srand(time(NULL)); // Inicializa a semente para geração de números aleatórios
-
     Territorio territorios[MAX_TERRITORIOS];
 
     cadastrarTerritorios(territorios);
-    exibirTerritorios(territorios);
+    
+    int opcao;
+    do {
+        printf("Menu:\n");
+        printf("1. Exibir territórios\n");
+        printf("2. Realizar ataque\n");
+        printf("0. Sair\n");
+        printf("Escolha uma opção: ");
+        scanf("%d", &opcao);
+        getchar(); // Consumir o caractere newline
+
+        switch (opcao) {
+            case 1:
+                exibirTerritorios(territorios);
+                break;
+            case 2:
+                realizarAtaque(territorios);
+                exibirTerritorios(territorios);
+                break;
+            case 0:
+                printf("Saindo...\n");
+                break;
+            default:
+                printf("Opção inválida!\n");
+        }
+    } while (opcao != 0);
+    return 0;
 }
 
 void cadastrarTerritorios(Territorio *territorios) {
@@ -103,8 +129,46 @@ void exibirTerritorios(const Territorio *territorios) {
 
     // 3. Limpeza:
     // - Ao final do jogo, libera a memória alocada para o mapa para evitar vazamentos de memória.
+}
 
-    return 0;
+
+void realizarAtaque(Territorio *territorios) {
+    int atacante, defensor;
+    printf("Digite o número do território atacante (1-%d): ", MAX_TERRITORIOS);
+    scanf("%d", &atacante);
+    printf("Digite o número do território defensor (1-%d): ", MAX_TERRITORIOS);
+    scanf("%d", &defensor);
+    getchar(); // Limpa o buffer de entrada
+
+    if (atacante < 1 || atacante > MAX_TERRITORIOS || defensor < 1 || defensor > MAX_TERRITORIOS) {
+        printf("Número de território inválido!\n");
+        return;
+    }
+
+
+        simularBatalha(territorios, atacante - 1, defensor - 1);
+}
+
+void simularBatalha(Territorio *territorios, int atacante, int defensor) {
+    int dadoAtacante = (rand() % 6) + 1;
+    int dadoDefensor = (rand() % 6) + 1;
+
+    printf("Dado do atacante (%s): %d\n", territorios[atacante].nome, dadoAtacante);
+    printf("Dado do defensor (%s): %d\n", territorios[defensor].nome, dadoDefensor);
+
+    if (dadoAtacante > dadoDefensor) {
+        territorios[defensor].numeroTropas--;
+        printf("O atacante venceu! O defensor perde uma tropa.\n");
+    } else if (dadoAtacante < dadoDefensor) {
+        territorios[atacante].numeroTropas--;
+        printf("O defensor venceu! O atacante perde uma tropa.\n");
+    } else {
+        printf("Empate! Nenhuma tropa perdeu tropas.\n");
+    }
+
+    if (territorios[defensor].numeroTropas <= 0) {
+        printf("O território %s foi conquistado!\n", territorios[defensor].nome);
+    }
 }
 
 // --- Implementação das Funções ---
